@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'ba-wordpress-github-updater-plugin/**' # Adjust the path as needed
 
 jobs:
   create_release:
