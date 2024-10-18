@@ -3,10 +3,10 @@
 Plugin Name: WordPress GitHub Updates (BA)
 Plugin URI:  https://github.com/ballistic-arts/ba-wordpress-github-updates-plugin
 Description: A simple WP plugin to allow for automatic updates from a GitHub repository.
-Version:     0.6.2.3
+Version:     0.6.3
 Author:      Gabriel Molter @ Ballistic Arts
 Author URI:  https://ballisticarts.com
-Update URI:  gjmolter/ba-wordpress-github-updates-plugin/main
+Update URI:  gjmolter/ba-wordpress-github-updates-plugin
 */
 
 // Exit if accessed directly
@@ -34,13 +34,19 @@ function ba_theme_update($transient)
 
     if (!empty($updateURI)) {
       $parts = explode('/', $updateURI);
-      if (count($parts) >= 3) {
+      if (count($parts) == 2 || count($parts) == 3) {
         $user = $parts[0];
         $repo = $parts[1];
-        $branch = $parts[2]; // Currently not used but available if needed
+        $release = $parts[2];
         $current_version = $theme->get('Version');
 
-        $url = "https://api.github.com/repos/{$user}/{$repo}/releases/latest";
+        if ($release == '' || !$release) {
+          $release = 'latest';
+        } else {
+          $release = 'tags/' . $release;
+        }
+
+        $url = "https://api.github.com/repos/{$user}/{$repo}/releases/{$release}";
         $args = array(
           'headers' => array(
             'Authorization' => 'token ' . $access_token,
@@ -87,7 +93,8 @@ function ba_theme_update($transient)
           $github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
         }
       } else {
-        $github_update_errors[] = 'Invalid Update URI format for theme: ' . $theme->get('Name');
+        //invalid update uri format. most likely not a github theme, only uncomment when needed
+        //$github_update_errors[] = 'Invalid Update URI format for theme: ' . $theme->get('Name');
       }
     }
   }
@@ -115,13 +122,18 @@ function ba_plugin_update($transient)
       if (count($parts) == 2 || count($parts) == 3) {
         $user = $parts[0];
         $repo = $parts[1];
-        $branch = $parts[2]; // Currently not used but available if needed
+        $release = $parts[2];
         $current_version = $plugin['Version'];
 
-        $github_update_errors[] = 'Plugin: ' . $plugin['Name'] . ' ' . $plugin['Version'];
+        //Default to latest release if no branch is specified or if used branch names instead of release
+        if ($release == '' || !$release) {
+          $release = 'latest';
+        } else {
+          $release = 'tags/' . $release;
+        }
 
         $github_update_errors[] = 'Checking for updates for ' . $user . '/' . $repo;
-        $url = "https://api.github.com/repos/{$user}/{$repo}/releases/latest";
+        $url = "https://api.github.com/repos/{$user}/{$repo}/releases/{$release}";
         $args = array(
           'headers' => array(
             'Authorization' => 'token ' . $access_token,
@@ -130,11 +142,7 @@ function ba_plugin_update($transient)
           ),
         );
 
-        $github_update_errors[] = 'Request URL: ' . $url;
-
         $response = wp_remote_get($url, $args);
-
-        $github_update_errors[] = 'Response: ' . print_r($response, true);
 
         if (is_wp_error($response)) {
           error_log('GitHub API error: ' . $response->get_error_message());
@@ -186,7 +194,7 @@ function ba_plugin_update($transient)
           $github_update_errors[] = 'Could not retrieve update info for plugin: ' . $plugin['Name'];
         }
       } else {
-        //invalid update uri format. most likely not a github plugin only uncomment when needed
+        //invalid update uri format. most likely not a github plugin, only uncomment when needed
         //$github_update_errors[] = 'Invalid Update URI format for plugin: ' . $plugin['Name'];
       }
     }
