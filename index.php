@@ -3,7 +3,7 @@
 Plugin Name: WordPress GitHub Updates (BA)
 Plugin URI:  https://github.com/ballistic-arts/ba-wordpress-github-updates-plugin
 Description: A simple WP plugin to allow for automatic updates from a GitHub repository.
-Version:     0.6.5
+Version:     0.6.5.1
 Author:      Gabriel Molter @ Ballistic Arts
 Author URI:  https://ballisticarts.com
 Update URI:  gjmolter/ba-wordpress-github-updates-plugin
