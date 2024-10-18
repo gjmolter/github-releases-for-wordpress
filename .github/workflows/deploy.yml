@@ -21,25 +21,30 @@ jobs:
         id: files_changed
         run: |
           # Define the paths to monitor
-          FILE_PATTERNS=("ba-wordpress-github-updater-plugin/*.php")
-
+          FILE_PATTERNS=("ba-wordpress-github-updater-plugin/**/*.php")
+      
           # Initialize a flag
           CHANGED=false
-
+      
           # Get list of changed files in the push
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-
+      
           echo "Changed files in this push:"
           echo "$CHANGED_FILES"
-
+      
           # Check if any of the monitored files are in the list
           for pattern in "${FILE_PATTERNS[@]}"; do
-            if echo "$CHANGED_FILES" | grep -E "^${pattern/\*/.*}$" ; then
+            # Escape dots and replace '*' with '.*' for regex
+            regex="^${pattern//./\\.}"
+            regex="^${regex//\*\*/.*/}"  # Handle '**' for recursive directories
+            regex="^${regex//\*/[^/]*}"   # Handle '*' for single directory levels
+      
+            if echo "$CHANGED_FILES" | grep -E "$regex" ; then
               CHANGED=true
               break
             fi
           done
-
+      
           echo "changed=$CHANGED" >> $GITHUB_OUTPUT
 
       # Step 3: Extract Version from main plugin file
