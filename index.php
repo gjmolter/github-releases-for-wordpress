@@ -3,7 +3,7 @@
 Plugin Name: WordPress GitHub Updates (BA)
 Plugin URI:  https://github.com/ballistic-arts/ba-wordpress-github-updates-plugin
 Description: A simple WP plugin to allow for automatic updates from a GitHub repository.
-Version:     0.6.4
+Version:     0.6.5
 Author:      Gabriel Molter @ Ballistic Arts
 Author URI:  https://ballisticarts.com
 Update URI:  gjmolter/ba-wordpress-github-updates-plugin
@@ -151,24 +151,12 @@ function ba_plugin_update($transient)
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
-        if (!isset($data['tag_name']) || empty($data['assets'])) {
-          error_log('GitHub API error: No tag_name or assets found in release data for ' . $user . '/' . $repo);
+        if (!isset($data['tag_name'])) {
+          $github_update_errors[] = 'GitHub API error: No tag_name found in release data for ' . $user . '/' . $repo;
           return false;
         }
 
-        // Find the ZIP asset
-        $download_url = '';
-        foreach ($data['assets'] as $asset) {
-          if (strpos($asset['name'], '.zip') !== false) {
-            $download_url = $asset['browser_download_url'];
-            break;
-          }
-        }
-
-        if (empty($download_url)) {
-          error_log('No ZIP asset found in release for ' . $user . '/' . $repo);
-          return false;
-        }
+        $download_url = "https://api.github.com/repos/{$user}/{$repo}/zipball/{$data['tag_name']}";
 
         $version = preg_replace('/^v/', '', $data['tag_name']);
 
@@ -177,11 +165,11 @@ function ba_plugin_update($transient)
           'download_url' => $download_url,
         );
 
-
         if ($remote_info && version_compare($current_version, $remote_info['version'], '<')) {
-          if (!isset($transient->response)) {
-            $transient->response = array();
+          if (!$transient) {
+            $transient = new stdClass();
           }
+
           $transient->response[$plugin_slug] = (object) array(
             'slug'        => dirname($plugin_slug),
             'plugin'      => $plugin_slug,
