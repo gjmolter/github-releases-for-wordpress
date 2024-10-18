@@ -21,7 +21,10 @@ jobs:
         id: files_changed
         run: |
           # Define the paths to monitor
-          FILE_PATTERNS=("ba-wordpress-github-updates-plugin/**/*.php")
+          FILE_PATTERNS=(
+            "ba-wordpress-github-updater-plugin/*.php"
+            "index.php"
+          )
       
           # Initialize a flag
           CHANGED=false
@@ -34,10 +37,9 @@ jobs:
       
           # Check if any of the monitored files are in the list
           for pattern in "${FILE_PATTERNS[@]}"; do
-            # Escape dots and replace '*' with '.*' for regex
-            regex="^${pattern//./\\.}"
-            regex="^${regex//\*\*/.*/}"  # Handle '**' for recursive directories
-            regex="^${regex//\*/[^/]*}"   # Handle '*' for single directory levels
+            # Convert glob pattern to regex
+            regex="^${pattern//./\\.}$"
+            regex="^${regex//\*/.*}$"
       
             if echo "$CHANGED_FILES" | grep -E "$regex" ; then
               CHANGED=true
