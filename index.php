@@ -3,7 +3,7 @@
 Plugin Name: WordPress GitHub Updates (BA)
 Plugin URI:  https://github.com/ballistic-arts/ba-wordpress-github-updates-plugin
 Description: A simple WP plugin to allow for automatic updates from a GitHub repository.
-Version:     0.6.3
+Version:     0.6.4
 Author:      Gabriel Molter @ Ballistic Arts
 Author URI:  https://ballisticarts.com
 Update URI:  gjmolter/ba-wordpress-github-updates-plugin
@@ -37,7 +37,7 @@ function ba_theme_update($transient)
       if (count($parts) == 2 || count($parts) == 3) {
         $user = $parts[0];
         $repo = $parts[1];
-        $release = $parts[2];
+        $release = isset($parts[2]) ? $parts[2] : '';
         $current_version = $theme->get('Version');
 
         if ($release == '' || !$release) {
@@ -122,7 +122,7 @@ function ba_plugin_update($transient)
       if (count($parts) == 2 || count($parts) == 3) {
         $user = $parts[0];
         $repo = $parts[1];
-        $release = $parts[2];
+        $release = isset($parts[2]) ? $parts[2] : '';
         $current_version = $plugin['Version'];
 
         //Default to latest release if no branch is specified or if used branch names instead of release
@@ -132,7 +132,6 @@ function ba_plugin_update($transient)
           $release = 'tags/' . $release;
         }
 
-        $github_update_errors[] = 'Checking for updates for ' . $user . '/' . $repo;
         $url = "https://api.github.com/repos/{$user}/{$repo}/releases/{$release}";
         $args = array(
           'headers' => array(
@@ -359,4 +358,4 @@ function ba_rename_extracted_folder($response, $hook_extra, $result)
 }
 add_filter('upgrader_post_install', 'ba_rename_extracted_folder', 10, 3);
 
-require_once './settings.php';
+require_once plugin_dir_path(__FILE__) . 'settings.php';
