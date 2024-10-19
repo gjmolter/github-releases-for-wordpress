@@ -3,7 +3,7 @@
 Plugin Name: GitHub Releases for WordPress
 Plugin URI:  https://gabrielmolter.com/wordpress/github-releases-for-wordpress/
 Description: Theme and Plugin version management via GitHub repo releases. Updates appear in the WordPress dashboard when a new release is published on GitHub. Requires a GitHub Access Token for private repositories (also recommended for public ones).
-Version:     0.9.2.2
+Version:     0.9.3.1
 Requires PHP: 7.2
 Requires at least: 5.6
 Author:      Gabriel Molter
