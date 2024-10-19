@@ -1,0 +1,64 @@
+name: Create Release on Plugin File Change
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "index.php"
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for git diff
+
+      # Step 2: Extract Version from main plugin file
+      - name: Extract Version from Plugin File
+        id: extract_version
+        run: |
+          # Define the plugin main file path
+          PLUGIN_FILE="index.php" # Adjust as per your main plugin file
+
+          # Extract the version using grep and regex
+          VERSION_LINE=$(grep -i "^Version:" "$PLUGIN_FILE" || true)
+
+          if [ -z "$VERSION_LINE" ]; then
+            echo "Version line not found in $PLUGIN_FILE"
+            exit 1
+          fi
+
+          # Extract the version number (assuming format "Version: x.y.z")
+          VERSION=$(echo "$VERSION_LINE" | sed -E 's/Version:[[:space:]]*//I')
+
+          if [ -z "$VERSION" ]; then
+            echo "Version number not found in $PLUGIN_FILE"
+            exit 1
+          fi
+
+          echo "Extracted version: $VERSION"
+
+          # Set the version as an output variable
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Step 3: Create GitHub Release
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
+        with:
+          # Use the extracted version as the tag name
+          tag_name: "v${{ steps.extract_version.outputs.version }}"
+          # Use the extracted version as the release name
+          release_name: "Release v${{ steps.extract_version.outputs.version }}"
+          # Optionally, generate release notes or customize as needed
+          body: |
+            A new (automatic) release has been created because a new version of the plugin index file was pushed to main.
+            **Version:** v${{ steps.extract_version.outputs.version }}
+          draft: false
+          prerelease: false

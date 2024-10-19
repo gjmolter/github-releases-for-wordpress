@@ -1,0 +1,58 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS Trash folder which can appear on external disk
+.Trashes
+
+# macOS metadata files
+._*
+
+# Icon files
+Icon?
+._Icon?
+
+# Thumbnails
+.thumbnail
+
+# PHP specific
+/vendor/
+/composer.lock
+
+# JavaScript specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Build directories
+dist/
+build/
+out/
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# IDEs and text editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Other
+*.env
+*.log
+*.cache
+coverage/
+
+# Const PHP files to mock wp-config.php defines for inteliphense
+const.env.php
