@@ -1,6 +1,6 @@
 # Github Releases for WordPress
 
-A simple WordPress plugin that enables automatic updates for your themes and plugins directly from GitHub repositories. 
+GitHub Releases for WordPress is a lightweight plugin that streamlines the process of updating your WordPress themes and plugins by leveraging GitHub repositories. Whether you’re managing public or private repositories, this plugin ensures your installations stay up-to-date with the latest releases.
 
 ## Installation
 
@@ -17,21 +17,21 @@ A simple WordPress plugin that enables automatic updates for your themes and plu
 
 ## Plugin and Repository Configs 
 
-In order to get a theme or plugin to update from GitHub, simply have the repo set up (if private, make sure that the configured Access Token has access to it) and add `Update URI: [username]/[repo]` to the plugin/theme headers. That will pick up the repo's latest release. 
+   - In order to get a theme or plugin to update from GitHub, simply have the repo set up (if private, make sure that the configured Access Token has access to it) and add `Update URI: [username]/[repo]` to the plugin/theme headers. That will pick up the repo's latest release. 
 
-(Example: `Update URI: gjmolter/github-releases-for-wordpress`)
+   - (Example: `Update URI: gjmolter/github-releases-for-wordpress`)
 
 > &nbsp; 
-> **This plugin works with releases, not branches.** 
+> This plugin works with releases, not branches. 
 > 
 > Simply pushing changes to a branch (`main` or any other) will **not** trigger an update. You can automate releases using GitHub Actions if you want. 
 >
 > Otherwise, you can create the releases manually from GitHub's interface.
 > &nbsp;
 
-If you want to specify a release, just add `/release` to the end of the Update URI, so it becomes `Update URI: [username]/[repo]/[release_tag_name]`. 
+   - If you want to specify a release, just add `/release` to the end of the Update URI, so it becomes `Update URI: [username]/[repo]/[release_tag_name]`. 
 
-(Example: `Update URI: gjmolter/github-releases-for-wordpress/1.0.0`)
+   - (Example: `Update URI: gjmolter/github-releases-for-wordpress/1.0.0`)
 
 ## Features
 
@@ -79,10 +79,10 @@ If you want to specify a release, just add `/release` to the end of the Update U
 
    The plugin will only consider updating to a new version when the GitHub release it finds has a Version Tag higher than the version on the local plugin/theme.
 
-   ### GitHub Actions
-   Adding a GitHub Action to generate new releases automatically works great. 
-   This very plugin uses one, so if you want an example, just check `.github/workflows/deploy.yml`.
-   The plugin also handles the download and extraction of extra .zip assets added to the GitHub release, meaning you can use a GitHub Action to process files and generate a dist.zip file that gets downloaded and extracted in your plugin/theme folder. Useful for build scripts.
+## GitHub Actions
+Adding a GitHub Action to generate new releases automatically works great. 
+This very plugin uses one, so if you want an example, just check `.github/workflows/deploy.yml`.
+The plugin also handles the download and extraction of extra .zip assets added to the GitHub release, meaning you can use a GitHub Action to process files and generate a dist.zip file that gets downloaded and extracted in your plugin/theme folder. Useful for build scripts.
 
 ## Performing an Update
 
