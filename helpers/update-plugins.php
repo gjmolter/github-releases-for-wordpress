@@ -8,7 +8,7 @@ function grfw_plugin_update($transient)
   $plugins = get_plugins();
 
   foreach ($plugins as $plugin_slug => $plugin) {
-    $updateURI = isset($plugin['UpdateURI']);
+    $updateURI = isset($plugin['UpdateURI']) ? $plugin['UpdateURI'] : '';
 
     if (!empty($updateURI)) {
       $parts = explode('/', $updateURI);
