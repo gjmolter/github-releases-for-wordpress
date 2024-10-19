@@ -3,10 +3,10 @@
 // When downloading from GitHub, the contents of the ZIP file are extrated to a folder with name:
 // [username]-[repo]-[extra_string], and we would want it to be just [repo].
 // Therefore, this function is here to rename the extracted folder into the expected folder name (and remove the leftover).
-function gm_rename_extracted_folder($response, $hook_extra, $result)
+function grfw_rename_extracted_folder($response, $hook_extra, $result)
 {
   //Initialize the global errors array (will be picked up by the notices.php file)
-  global $gm_github_update_errors;
+  global $grfw_github_update_errors;
 
   // Ensure the WordPress filesystem is available.
   if (! function_exists('WP_Filesystem')) require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -61,7 +61,7 @@ function gm_rename_extracted_folder($response, $hook_extra, $result)
     // Rename the extracted folder to the expected theme folder name.
     $renamed = $wp_filesystem->move(dirname($result['destination']) . '/' . $extracted_folder, $theme_directory);
     if (!$renamed) {
-      $gm_github_update_errors[] = 'Failed to rename the extracted theme folder.';
+      $grfw_github_update_errors[] = 'Failed to rename the extracted theme folder.';
       return;
     }
 
@@ -117,7 +117,7 @@ function gm_rename_extracted_folder($response, $hook_extra, $result)
     // Rename the extracted folder to the expected plugin folder name.
     $renamed = $wp_filesystem->move(dirname($result['destination']) . '/' . $extracted_folder, $plugin_directory);
     if (! $renamed) {
-      $gm_github_update_errors[] = 'Failed to rename the extracted plugin folder.';
+      $grfw_github_update_errors[] = 'Failed to rename the extracted plugin folder.';
       return;
     }
 
@@ -139,23 +139,23 @@ function handle_extra_assets_after_update()
   // Check themes
   $themes = wp_get_themes();
   foreach ($themes as $theme_slug => $theme) {
-    $extra_assets = get_transient('gm_github_extra_assets_theme_' . $theme_slug);
+    $extra_assets = get_transient('grfw_github_extra_assets_theme_' . $theme_slug);
 
     if ($extra_assets) {
       $theme_directory = get_theme_root() . '/' . $theme_slug;
       download_and_save_extra_assets($extra_assets, $theme_directory, $theme_slug);
-      delete_transient('gm_github_extra_assets_theme_' . $theme_slug);
+      delete_transient('grfw_github_extra_assets_theme_' . $theme_slug);
     }
   }
   // Check plugins
   $plugins = get_plugins();
   foreach ($plugins as $plugin_slug => $plugin) {
-    $extra_assets = get_transient('gm_github_extra_assets_plugin_' . $plugin_slug);
+    $extra_assets = get_transient('grfw_github_extra_assets_plugin_' . $plugin_slug);
 
     if ($extra_assets) {
       $plugin_directory = WP_PLUGIN_DIR . '/' . dirname($plugin_slug);
       download_and_save_extra_assets($extra_assets, $plugin_directory, $plugin_slug);
-      delete_transient('gm_github_extra_assets_plugin_' . $plugin_slug);
+      delete_transient('grfw_github_extra_assets_plugin_' . $plugin_slug);
     }
   }
 }
@@ -166,14 +166,14 @@ function download_and_save_extra_assets($assets, $destination_dir, $slug)
   // Ensure the destination directory exists, if not, try to create it
   if (!is_dir($destination_dir)) {
     if (!wp_mkdir_p($destination_dir)) {
-      $gm_github_update_errors[] = 'Failed to create destination directory: ' . $destination_dir;
+      $grfw_github_update_errors[] = 'Failed to create destination directory: ' . $destination_dir;
       return;
     }
   }
 
   // Ensure the destination directory is writable
   if (!is_writable($destination_dir)) {
-    $gm_github_update_errors[] = 'Destination directory is not writable: ' . $destination_dir;
+    $grfw_github_update_errors[] = 'Destination directory is not writable: ' . $destination_dir;
     return;
   }
 
@@ -184,7 +184,7 @@ function download_and_save_extra_assets($assets, $destination_dir, $slug)
     // Extract the asset ID from the URL (Ex: https://api.github.com/repos/[user]/[repo]/releases/assets/[asset_id])
     $asset_id = basename($asset_url);
     if (!is_numeric($asset_id)) {
-      $gm_github_update_errors[] = 'Invalid asset ID extracted from URL: ' . $asset_url;
+      $grfw_github_update_errors[] = 'Invalid asset ID extracted from URL: ' . $asset_url;
       continue;
     }
 
@@ -192,21 +192,21 @@ function download_and_save_extra_assets($assets, $destination_dir, $slug)
     $response = wp_remote_get($asset_url);
 
     if (is_wp_error($response)) {
-      $gm_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': ' . $response->get_error_message();
+      $grfw_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': ' . $response->get_error_message();
       continue;
     }
 
     // Ensure the response code is 200
     $response_code = wp_remote_retrieve_response_code($response);
     if ($response_code !== 200) {
-      $gm_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': HTTP ' . $response_code;
+      $grfw_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': HTTP ' . $response_code;
       continue;
     }
 
     // Retrieve the asset data
     $asset_data = wp_remote_retrieve_body($response);
     if (empty($asset_data)) {
-      $gm_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': Empty response body';
+      $grfw_github_update_errors[] = 'Failed to download asset ID ' . $asset_id . ': Empty response body';
       continue;
     }
 
@@ -239,11 +239,11 @@ function download_and_save_extra_assets($assets, $destination_dir, $slug)
       if ($zip->extractTo(trailingslashit($destination_dir))) {
         error_log("[$slug] Successfully extracted $filename");
       } else {
-        $gm_github_update_errors[] = 'Failed to extract asset ID ' . $asset_id . ' to ' . $destination_dir;
+        $grfw_github_update_errors[] = 'Failed to extract asset ID ' . $asset_id . ' to ' . $destination_dir;
       }
       $zip->close();
     } else {
-      $gm_github_update_errors[] = 'Failed to open ZIP archive for asset ID ' . $asset_id;
+      $grfw_github_update_errors[] = 'Failed to open ZIP archive for asset ID ' . $asset_id;
     }
 
     unlink($file_path);
@@ -251,5 +251,5 @@ function download_and_save_extra_assets($assets, $destination_dir, $slug)
 }
 
 // Hook into the post-installation process to rename the extracted folder and handle extra assets
-add_filter('upgrader_post_install', 'gm_rename_extracted_folder', 10, 3);
+add_filter('upgrader_post_install', 'grfw_rename_extracted_folder', 10, 3);
 add_action('upgrader_process_complete', 'handle_extra_assets_after_update', 10, 2);

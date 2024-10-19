@@ -1,8 +1,8 @@
 <?php
-function gm_theme_update($transient)
+function grfw_theme_update($transient)
 {
   // Initialize the global errors array (will be picked up by the notices.php file)
-  global $gm_github_update_errors;
+  global $grfw_github_update_errors;
 
   // Get all the themes, so we can check if they have a valid UpdateURI
   $themes = wp_get_themes();
@@ -27,7 +27,7 @@ function gm_theme_update($transient)
         $url = "https://api.github.com/repos/{$user}/{$repo}/releases/{$release}";
         $response = wp_remote_get($url);
         if (is_wp_error($response)) {
-          $gm_github_update_errors[] = 'GitHub API error: ' . $response->get_error_message();
+          $grfw_github_update_errors[] = 'GitHub API error: ' . $response->get_error_message();
           continue;
         }
         $body = wp_remote_retrieve_body($response);
@@ -35,7 +35,7 @@ function gm_theme_update($transient)
 
         // If no tag_name is found in the release data, skip this theme
         if (!isset($data['tag_name'])) {
-          $gm_github_update_errors[] = 'GitHub API error: No tag_name found in release data for ' . $user . '/' . $repo;
+          $grfw_github_update_errors[] = 'GitHub API error: No tag_name found in release data for ' . $user . '/' . $repo;
           continue;
         }
 
@@ -54,7 +54,7 @@ function gm_theme_update($transient)
         }
 
         // Save the extra asset URLs to a transient, so we can use them on the after-update hook
-        set_transient('gm_github_extra_assets_theme_' . $theme_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
+        set_transient('grfw_github_extra_assets_theme_' . $theme_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
 
         // Get the version number from the tag name (remove the 'v' from the beginning, if it exists)
         $version = preg_replace('/^v/', '', $data['tag_name']);
@@ -76,7 +76,7 @@ function gm_theme_update($transient)
             'package' => $remote_info['download_url'],
           );
         } elseif (!$remote_info) {
-          $gm_github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
+          $grfw_github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
           continue;
         }
       } else {
@@ -89,4 +89,4 @@ function gm_theme_update($transient)
 }
 
 // Hook into the WP regular theme update check
-add_filter('pre_set_site_transient_update_themes', 'gm_theme_update');
+add_filter('pre_set_site_transient_update_themes', 'grfw_theme_update');
