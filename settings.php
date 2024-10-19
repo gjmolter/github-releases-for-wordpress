@@ -1,24 +1,24 @@
 <?php
 
 // Add Settings Page to the Admin Menu
-function ba_github_updater_add_settings_page()
+function gm_github_updater_add_settings_page()
 {
   add_options_page(
     'GitHub Updater Settings', // Page title
     'GitHub Updater', // Menu title
     'manage_options', // Capability
-    'ba-github-updater', // Menu slug
-    'ba_github_updater_render_settings' // Callback function
+    'gm-github-updater', // Menu slug
+    'gm_github_updater_render_settings' // Callback function
   );
 }
-add_action('admin_menu', 'ba_github_updater_add_settings_page');
+add_action('admin_menu', 'gm_github_updater_add_settings_page');
 
 // Register Settings
-function ba_github_updater_register_settings()
+function gm_github_updater_register_settings()
 {
   register_setting(
-    'ba_github_updater_settings_group', // Option group
-    'ba_github_access_token', // Option name
+    'gm_github_updater_settings_group', // Option group
+    'gm_github_access_token', // Option name
     array(
       'type' => 'string',
       'sanitize_callback' => 'sanitize_text_field',
@@ -26,10 +26,10 @@ function ba_github_updater_register_settings()
     )
   );
 }
-add_action('admin_init', 'ba_github_updater_register_settings');
+add_action('admin_init', 'gm_github_updater_register_settings');
 
 // Render the Settings Page
-function ba_github_updater_render_settings()
+function gm_github_updater_render_settings()
 {
   // Check user capabilities
   if (!current_user_can('manage_options')) {
@@ -37,21 +37,21 @@ function ba_github_updater_render_settings()
   }
 
   // Show error/update messages
-  settings_errors('ba_github_updater_messages');
+  settings_errors('gm_github_updater_messages');
 ?>
   <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     <form action="options.php" method="post">
       <?php
-      settings_fields('ba_github_updater_settings_group');
-      do_settings_sections('ba_github_updater_settings_group');
+      settings_fields('gm_github_updater_settings_group');
+      do_settings_sections('gm_github_updater_settings_group');
       ?>
       <table class="form-table" role="presentation">
         <tr>
-          <th scope="row"><label for="ba_github_access_token">GitHub Access Token</label></th>
+          <th scope="row"><label for="gm_github_access_token">GitHub Access Token</label></th>
           <td>
-            <input type="password" id="ba_github_access_token" name="ba_github_access_token"
-              value="<?php echo esc_attr(get_option('ba_github_access_token')); ?>" class="regular-text" />
+            <input type="password" id="gm_github_access_token" name="gm_github_access_token"
+              value="<?php echo esc_attr(get_option('gm_github_access_token')); ?>" class="regular-text" />
             <p class="description">
               Enter your GitHub Access Token here. This token is used to authenticate API requests for checking updates
               and downloading packages.
@@ -86,11 +86,4 @@ function ba_github_updater_render_settings()
     </form>
   </div>
 <?php
-}
-
-
-// Retrieve GitHub Access Token from Settings
-function ba_get_github_access_token()
-{
-  return trim(get_option('ba_github_access_token', ''));
 }

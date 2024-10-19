@@ -1,37 +1,43 @@
 A simple WordPress plugin that enables automatic updates for your themes and plugins directly from GitHub repositories. 
-Streamline your update process by leveraging GitHub releases, ensuring your WordPress site always runs the latest versions of your custom themes and plugins.
-
-In order to get a theme or plugin configured to use GitHub for versioning, simply have the repo set up and add `Update URI: username/repo/release` to the plugin/theme headers. 
-If you want to use the latest release, either write latest or provide only the username/repo, so it will use latest as default.
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [How It Works](#how-it-works)
-- [Performing an Update](#performing-an-update)
-- [Forcing Update Checks](#forcing-update-checks)
-
-## Features
-
-- **Automatic Updates:** Seamlessly update your WordPress themes and plugins from GitHub releases.
-- **Public and Private Repos:** It works for public plugins out-of-the-box, and only requires a GitHub Access Token for private repos.
-- **Optional Release Specifier:** By default it will get the latest release, but you can pass the release name as part of the UpdateURI too
-- **Fully Integrated to WordPress:** The plugin hooks into the default WordPress updater, so the process of updating themes and plugins is exactly the same as it would be for other plugin/themes.
 
 ## Installation
 
 1. **Download the Plugin:**
-   - Download the ZIP file from [GitHub](https://github.com/ballistic-arts/ba-wordpress-github-updates-plugin).
+   - Download the Plugin code as .zip file from [GitHub](https://github.com/gjmolter/wp-github-updater).
 
-2. **Upload to WordPress:**
-   - Navigate to your WordPress Admin Dashboard.
+2. **Install and Activate on your WordPress site:**
    - Go to **Plugins > Add New > Upload Plugin**.
    - Choose the downloaded ZIP file and click **Install Now**.
-
-3. **Activate the Plugin:**
    - After installation, activate the plugin from the **Plugins** page.
+
+3. **Set up GitHub Access Token:**
+   - Go to **Settings > GitHub Updater**, add your token and click **Save Settings**.
+
+## Plugin and Repository Configs 
+
+In order to get a theme or plugin to update from GitHub, simply have the repo set up (if private, make sure that the configured Access Token has access to it) and add `Update URI: [username]/[repo]` to the plugin/theme headers. That will pick up the repo's latest release. 
+
+(Example: `Update URI: gjmolter/wp-github-updater`)
+
+> &nbsp; 
+> **This plugin works with releases, not branches.** 
+> 
+> Simply pushing changes to a branch (`main` or any other) will **not** trigger an update. You can automate releases using GitHub Actions if you want. 
+>
+> Otherwise, you can create the releases manually from GitHub's interface.
+> &nbsp;
+
+If you want to specify a release, just add `/release` to the end of the Update URI, so it becomes `Update URI: [username]/[repo]/[release_tag_name]`. 
+
+(Example: `Update URI: gjmolter/wp-github-updater/1.0.0`)
+
+## Features
+
+- **Automatic Updates:** Seamlessly update your WordPress themes and plugins from GitHub releases. Set up autom
+- **Public and Private Repos:** The plugin works with both public and private repos (as long as the GitHub Access Token provided has access to the private repo)
+- **Optional Release Specifier:** By default it will get the latest release, but you can pass the release name as part of the UpdateURI too
+- **Fully Integrated to WordPress:** The plugin hooks into the default WordPress updater, so the process of updating themes and plugins is exactly the same as it would be for other plugin/themes.
+
 
 ## Configuration
 

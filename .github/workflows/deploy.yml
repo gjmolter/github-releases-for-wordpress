@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "index.php"
 
 jobs:
   create_release:
@@ -14,45 +16,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Fetch all history for git diff
+          fetch-depth: 0 # Fetch all history for git diff
 
-      # Step 2: Determine if relevant files were changed
-      - name: Check if relevant files were changed
-        id: files_changed
-        run: |
-          # Define the paths to monitor
-          FILE_PATTERNS=(
-            "ba-wordpress-github-updater-plugin/*.php"
-            "index.php"
-          )
-      
-          # Initialize a flag
-          CHANGED=false
-      
-          # Get list of changed files in the push
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-      
-          echo "Changed files in this push:"
-          echo "$CHANGED_FILES"
-      
-          # Check if any of the monitored files are in the list
-          for pattern in "${FILE_PATTERNS[@]}"; do
-            # Convert glob pattern to regex
-            regex="^${pattern//./\\.}$"
-            regex="^${regex//\*/.*}$"
-      
-            if echo "$CHANGED_FILES" | grep -E "$regex" ; then
-              CHANGED=true
-              break
-            fi
-          done
-      
-          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
-
-      # Step 3: Extract Version from main plugin file
+      # Step 2: Extract Version from main plugin file
       - name: Extract Version from Plugin File
         id: extract_version
-        if: steps.files_changed.outputs.changed == 'true'
         run: |
           # Define the plugin main file path
           PLUGIN_FILE="index.php" # Adjust as per your main plugin file
@@ -78,9 +46,8 @@ jobs:
           # Set the version as an output variable
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # Step 4: Create GitHub Release
+      # Step 3: Create GitHub Release
       - name: Create GitHub Release
-        if: steps.files_changed.outputs.changed == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
@@ -91,12 +58,7 @@ jobs:
           release_name: "Release v${{ steps.extract_version.outputs.version }}"
           # Optionally, generate release notes or customize as needed
           body: |
-            A new release has been created based on updates to the plugin files.
-
+            A new (automatic) release has been created because a new version of the plugin index file was pushed to main.
             **Version:** v${{ steps.extract_version.outputs.version }}
-
-            ## Changes
-            - Detailed changelog can be added here.
-
           draft: false
           prerelease: false
