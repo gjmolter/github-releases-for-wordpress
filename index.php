@@ -25,7 +25,6 @@ require_once plugin_dir_path(__FILE__) . 'helpers/update-plugins.php';
 require_once plugin_dir_path(__FILE__) . 'helpers/update-themes.php';
 require_once plugin_dir_path(__FILE__) . 'helpers/post-update.php';
 require_once plugin_dir_path(__FILE__) . 'helpers/notices.php';
-require_once plugin_dir_path(__FILE__) . 'helpers/force-update.php';
 
 // PLUGIN OPTION PAGES
 require_once plugin_dir_path(__FILE__) . 'option-pages/settings.php';
