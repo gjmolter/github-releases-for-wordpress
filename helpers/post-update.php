@@ -71,6 +71,14 @@ function grfw_rename_extracted_folder($response, $hook_extra, $result)
     } elseif (is_array($result)) {
       $result['destination'] = $theme_directory;
     }
+
+    // If you're updating the current active theme, the renaming will work, but you'll end up with an unexistent active theme. 
+    // This code checks for that case and updates the active theme to the new one.
+    $active_theme = get_option('template');
+    if ($active_theme === $extracted_folder) {
+      update_option('template', $theme_slug);
+      update_option('stylesheet', $theme_slug);
+    }
   } elseif (isset($hook_extra['plugin'])) {
     $plugin_slug = $hook_extra['plugin'];
     $plugin_basename = dirname($plugin_slug);
