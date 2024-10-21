@@ -71,14 +71,6 @@ function grfw_rename_extracted_folder($response, $hook_extra, $result)
     } elseif (is_array($result)) {
       $result['destination'] = $theme_directory;
     }
-
-    // If you're updating the current active theme, the renaming will work, but you'll end up with an unexistent active theme. 
-    // This code checks for that case and updates the active theme to the new one.
-    $active_theme = get_option('template');
-    if ($active_theme === $extracted_folder) {
-      update_option('template', $theme_slug);
-      update_option('stylesheet', $theme_slug);
-    }
   } elseif (isset($hook_extra['plugin'])) {
     $plugin_slug = $hook_extra['plugin'];
     $plugin_basename = dirname($plugin_slug);
@@ -153,6 +145,13 @@ function handle_extra_assets_after_update()
       $theme_directory = get_theme_root() . '/' . $theme_slug;
       download_and_save_extra_assets($extra_assets, $theme_directory, $theme_slug);
       delete_transient('grfw_github_extra_assets_theme_' . $theme_slug);
+    }
+
+    // This is an extra check for the theme that was just updated.
+    // If that theme was the active one, we need to update the active theme folder path. (github adds some extra strings to the folder name)
+    if (get_transient('grfw_udpated_active_theme')['slug'] === $theme_slug) {
+      update_option('stylesheet', get_transient('grfw_udpated_active_theme')['stylesheet_path']);
+      delete_transient('grfw_udpated_active_theme');
     }
   }
   // Check plugins
