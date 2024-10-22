@@ -61,22 +61,47 @@ function grfw_plugin_update($transient)
           'download_url' => $download_url,
         );
 
-        // If the theme is outdated, add the update info to the transient
-        if ($remote_info && version_compare($current_version, $remote_info['version'], '<')) {
-          // Save the extra asset URLs to a transient, so we can use them on the after-update hook
-          set_transient('grfw_github_extra_assets_plugin_' . $plugin_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
-          // If there's no transient, create an empty one
-          if (!$transient) $transient = new stdClass();
-          // Add our update info to the transient so WP can show the update notification.
-          $transient->response[$plugin_slug] = (object) array(
-            'slug'        => dirname($plugin_slug),
-            'plugin'      => $plugin_slug,
-            'new_version' => $remote_info['version'],
-            'url'         => $plugin['PluginURI'],
-            'package'     => $remote_info['download_url'],
-          );
-        } elseif (!$remote_info) {
-          $grfw_github_update_errors[] = 'Could not retrieve update info for plugin: ' . $plugin['Name'];
+        if ($release != 'latest') {
+          //if the current version is not the same as the release, add the update info to the transient
+          if ($remote_info && $remote_info['version'] != $current_version) {
+            // Save the extra asset URLs to a transient, so we can use them on the after-update hook
+            set_transient('grfw_github_extra_assets_plugin_' . $plugin_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
+            // If there's no transient, create an empty one
+            if (!$transient) $transient = new stdClass();
+            // Add our update info to the transient so WP can show the update notification.
+            $transient->response[$plugin_slug] = (object) array(
+              'slug'        => dirname($plugin_slug),
+              'plugin'      => $plugin_slug,
+              'new_version' => $remote_info['version'],
+              'url'         => $plugin['PluginURI'],
+              'package'     => $remote_info['download_url'],
+            );
+          } elseif (!$remote_info) {
+            $grfw_github_update_errors[] = 'Could not retrieve update info for plugin: ' . $plugin['Name'];
+          } elseif ($remote_info['version'] == $current_version) {
+            // If the theme is up to date, remove it from the transient
+            if (isset($transient->response[$plugin_slug])) {
+              unset($transient->response[$plugin_slug]);
+            }
+          }
+        } else {
+          // If the theme is outdated, add the update info to the transient
+          if ($remote_info && version_compare($current_version, $remote_info['version'], '<')) {
+            // Save the extra asset URLs to a transient, so we can use them on the after-update hook
+            set_transient('grfw_github_extra_assets_plugin_' . $plugin_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
+            // If there's no transient, create an empty one
+            if (!$transient) $transient = new stdClass();
+            // Add our update info to the transient so WP can show the update notification.
+            $transient->response[$plugin_slug] = (object) array(
+              'slug'        => dirname($plugin_slug),
+              'plugin'      => $plugin_slug,
+              'new_version' => $remote_info['version'],
+              'url'         => $plugin['PluginURI'],
+              'package'     => $remote_info['download_url'],
+            );
+          } elseif (!$remote_info) {
+            $grfw_github_update_errors[] = 'Could not retrieve update info for plugin: ' . $plugin['Name'];
+          }
         }
       } else {
         // Invalid UpdateURI format. 

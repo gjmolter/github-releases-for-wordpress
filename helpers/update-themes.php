@@ -62,32 +62,67 @@ function grfw_theme_update($transient)
           'download_url' => $download_url,
         );
 
-        // If the theme is outdated, add the update info to the transient
-        if ($remote_info && version_compare($current_version, $remote_info['version'], '<')) {
-          // Save the extra asset URLs to a transient, so we can use them on the after-update hook
-          set_transient('grfw_github_extra_assets_theme_' . $theme_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
+        if ($release != 'latest') {
+          //if the current version is not the same as the release, add the update info to the transient
+          if ($remote_info && $remote_info['version'] != $current_version) {
+            // Save the extra asset URLs to a transient, so we can use them on the after-update hook
+            set_transient('grfw_github_extra_assets_theme_' . $theme_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
+            // If there's no transient, create an empty one
 
-          //Check if this is the active theme
-          $active_theme = wp_get_theme();
-          if ($active_theme->get_stylesheet() == $theme->get_stylesheet()) {
-            set_transient('grfw_udpated_active_theme', array(
-              'slug' => $theme_slug,
-              'stylesheet_path' => $theme->get_stylesheet()
-            ), HOUR_IN_SECONDS * 24 * 365);
+            //Check if this is the active theme
+            $active_theme = wp_get_theme();
+            if ($active_theme->get_stylesheet() == $theme->get_stylesheet()) {
+              set_transient('grfw_udpated_active_theme', array(
+                'slug' => $theme_slug,
+                'stylesheet_path' => $theme->get_stylesheet()
+              ), HOUR_IN_SECONDS * 24 * 365);
+            }
+
+            if (!$transient) $transient = new stdClass();
+            // Add our update info to the transient so WP can show the update notification.
+            $transient->response[$theme->get_stylesheet()] = array(
+              'theme' => $theme->get_stylesheet(),
+              'new_version' => $remote_info['version'],
+              'url' => $theme->get('ThemeURI'),
+              'package' => $remote_info['download_url'],
+            );
+          } elseif (!$remote_info) {
+            $grfw_github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
+            continue;
+          } elseif ($remote_info['version'] == $current_version) {
+            // If the theme is up to date, remove it from the transient
+            if (isset($transient->response[$theme->get_stylesheet()])) {
+              unset($transient->response[$theme->get_stylesheet()]);
+            }
           }
+        } else {
+          // If the theme is outdated, add the update info to the transient
+          if ($remote_info && version_compare($current_version, $remote_info['version'], '<')) {
+            // Save the extra asset URLs to a transient, so we can use them on the after-update hook
+            set_transient('grfw_github_extra_assets_theme_' . $theme_slug, $extra_assets, HOUR_IN_SECONDS * 24 * 365);
 
-          // If there's no transient, create an empty one
-          if (!$transient) $transient = new stdClass();
-          // Add our update info to the transient so WP can show the update notification.
-          $transient->response[$theme->get_stylesheet()] = array(
-            'theme' => $theme->get_stylesheet(),
-            'new_version' => $remote_info['version'],
-            'url' => $theme->get('ThemeURI'),
-            'package' => $remote_info['download_url'],
-          );
-        } elseif (!$remote_info) {
-          $grfw_github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
-          continue;
+            //Check if this is the active theme
+            $active_theme = wp_get_theme();
+            if ($active_theme->get_stylesheet() == $theme->get_stylesheet()) {
+              set_transient('grfw_udpated_active_theme', array(
+                'slug' => $theme_slug,
+                'stylesheet_path' => $theme->get_stylesheet()
+              ), HOUR_IN_SECONDS * 24 * 365);
+            }
+
+            // If there's no transient, create an empty one
+            if (!$transient) $transient = new stdClass();
+            // Add our update info to the transient so WP can show the update notification.
+            $transient->response[$theme->get_stylesheet()] = array(
+              'theme' => $theme->get_stylesheet(),
+              'new_version' => $remote_info['version'],
+              'url' => $theme->get('ThemeURI'),
+              'package' => $remote_info['download_url'],
+            );
+          } elseif (!$remote_info) {
+            $grfw_github_update_errors[] = 'Could not retrieve update info for theme: ' . $theme->get('Name');
+            continue;
+          }
         }
       } else {
         // Invalid UpdateURI format. 
