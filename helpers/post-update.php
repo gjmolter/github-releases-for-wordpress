@@ -149,7 +149,7 @@ function handle_extra_assets_after_update()
 
     // This is an extra check for the theme that was just updated.
     // If that theme was the active one, we need to update the active theme folder path. (github adds some extra strings to the folder name)
-    if (get_transient('grfw_udpated_active_theme')['slug'] === $theme_slug) {
+    if (get_transient('grfw_udpated_active_theme') && get_transient('grfw_udpated_active_theme')['slug'] === $theme_slug) {
       update_option('stylesheet', get_transient('grfw_udpated_active_theme')['stylesheet_path']);
       delete_transient('grfw_udpated_active_theme');
     }
